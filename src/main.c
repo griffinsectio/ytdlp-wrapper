@@ -17,12 +17,11 @@ void download(char *url, char *format) {
     if (WEXITSTATUS(exit_code) != 0) {
         printf("Couldn't download the file with specified format/quality\n");
         exit(1);
-        // download(url, format);
     }
 }
 
 void downloadVideoAudio(char *url) {
-    char quality[9][5] = {"144", "240", "360", "480", "720", "1080", "1440", "2160", "4320"};
+    const char *quality[] = {"144", "240", "360", "480", "720", "1080", "1440", "2160", "4320"};
     unsigned long len = sizeof(quality)/sizeof(char*);
     
     for (unsigned long i = 0; i < len; i++) {
@@ -30,12 +29,13 @@ void downloadVideoAudio(char *url) {
     }
 
     unsigned long userChoice;
+    printf("Choose the resolution for the video: ");
     int res = scanf("%lu", &userChoice);
     if (res != 1) {
         printf("Please enter a valid number!\n");
     }
 
-    char *resolution = (char *)malloc(6 * sizeof(char));
+    const char *resolution = (char *)malloc(6 * sizeof(char));
 
     if (userChoice > 0 && userChoice < len + 1) {
         resolution = quality[userChoice-1];
@@ -53,7 +53,7 @@ void downloadVideoAudio(char *url) {
 }
 
 void downloadVideo(char *url) {
-    char quality[9][5] = {"144", "240", "360", "480", "720", "1080", "1440", "2160", "4320"};
+    const char *quality[] = {"144", "240", "360", "480", "720", "1080", "1440", "2160", "4320"};
     unsigned long len = sizeof(quality)/sizeof(char*);
     
     for (unsigned long i = 0; i < len; i++) {
@@ -61,12 +61,13 @@ void downloadVideo(char *url) {
     }
 
     unsigned long userChoice;
+    printf("Choose the resolution for the video: ");
     int res = scanf("%lu", &userChoice);
     if (res != 1) {
         printf("Please enter a valid number!\n");
     }
 
-    char *resolution = (char *)malloc(6 * sizeof(char));
+    const char *resolution = (char *)malloc(6 * sizeof(char));
 
     if (userChoice > 0 && userChoice < len + 1) {
         resolution = quality[userChoice-1];
@@ -88,7 +89,7 @@ void downloadAudio(char * url) {
 }
 
 void mainMenu(char * url) {
-    char options[3][12] = {
+    const char *options[] = {
         "video+audio",
         "video only",
         "audio only"
@@ -102,8 +103,8 @@ void mainMenu(char * url) {
 
     int userChoice;
 
-    int result = scanf("%d", &userChoice);
     printf("Which one you want to download: ");
+    int result = scanf("%d", &userChoice);
     if  (result != 1) {
         printf("Please enter a valid number!\n");
         return;
