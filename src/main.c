@@ -6,13 +6,18 @@
 const char *ytdlp = "yt-dlp";
 const char *outputFormat = "-o \"%(title)s.%(ext)s\" --restrict-filenames";
 
-void download(char *url, char *format) {
-    int commandLen = strlen(ytdlp) + strlen(outputFormat) + strlen(format) + strlen(url) + 1;
+void download(char **url, char **format) {
+    // 1 for null character
+    // 3 for spaces between each command component
+    int commandLen = strlen(ytdlp) + strlen(outputFormat) + strlen(*format) + strlen(*url) + 1 + 3;
     char *command = (char *) malloc(commandLen);
-    sprintf(command, "%s %s %s %s", ytdlp, outputFormat, format, url);
+    sprintf(command, "%s %s %s %s", ytdlp, outputFormat, *format, *url);
     command[commandLen-1] = '\0';
 
     int exit_code = system(command);
+
+    free(*url);
+    free(*format);
 
     if (WEXITSTATUS(exit_code) != 0) {
         printf("Couldn't download the file with specified format/quality\n");
@@ -20,7 +25,7 @@ void download(char *url, char *format) {
     }
 }
 
-void downloadVideoAudio(char *url) {
+void downloadVideoAudio(char **url) {
     const char *quality[] = {"144", "240", "360", "480", "720", "1080", "1440", "2160", "4320"};
     unsigned long len = sizeof(quality)/sizeof(char*);
     
@@ -35,24 +40,24 @@ void downloadVideoAudio(char *url) {
         printf("Please enter a valid number!\n");
     }
 
-    const char *resolution = (char *)malloc(6 * sizeof(char));
+    char *resolution;
 
     if (userChoice > 0 && userChoice < len + 1) {
-        resolution = quality[userChoice-1];
+        resolution = (char *) quality[userChoice-1];
     } else {
+        free(*url);
         printf("Please select one of available resolution!\n");
         exit(1);
     }
 
-    char formatString[] = "-f \"bv*[height<=%s]+ba\"";
+    char formatString[] = "-f \"bv*[height=%s]+ba\"";
     char *format = (char *) malloc(strlen(resolution) + strlen(formatString));
     sprintf(format, formatString, resolution);
     
-    download(url, format);
-
+    download(url, &format);
 }
 
-void downloadVideo(char *url) {
+void downloadVideo(char **url) {
     const char *quality[] = {"144", "240", "360", "480", "720", "1080", "1440", "2160", "4320"};
     unsigned long len = sizeof(quality)/sizeof(char*);
     
@@ -67,11 +72,12 @@ void downloadVideo(char *url) {
         printf("Please enter a valid number!\n");
     }
 
-    const char *resolution = (char *)malloc(6 * sizeof(char));
+    char *resolution;
 
     if (userChoice > 0 && userChoice < len + 1) {
-        resolution = quality[userChoice-1];
+        resolution = (char *) quality[userChoice-1];
     } else {
+        free(*url);
         printf("Please select one of available resolution!\n");
         exit(1);
     }
@@ -79,16 +85,18 @@ void downloadVideo(char *url) {
     char formatString[] = "-f \"bv*[height=%s]\"";
     char *format = (char *) malloc(strlen(resolution) + strlen(formatString));
     sprintf(format, formatString, resolution);
-    
-    download(url, format);
+
+    download(url, &format);
 }
 
-void downloadAudio(char * url) {
-    char format[] = "-f \"ba\"";
-    download(url, format);
+void downloadAudio(char **url) {
+    char *format = (char *) malloc(sizeof(char) * 8);
+    sprintf(format, "-f \"ba\"");
+
+    download(url, &format);
 }
 
-void mainMenu(char * url) {
+void mainMenu(char **url) {
     const char *options[] = {
         "video+audio",
         "video only",
@@ -128,14 +136,29 @@ void mainMenu(char * url) {
     printf("\n");
 }
 
-int main(int argc, char **argv) {
+char *getUrl(char *argv[]) {
+    char *url = argv[1];
+    printf("%s\n", url);
+
+    // 2 for ""
+    // 1 for null character
+    char *formattedUrl = (char *) malloc(strlen(url) + 1 + 2);
+    sprintf(formattedUrl, "\"%s\"", url);
+    return formattedUrl;
+    
+}
+
+int main(int argc, char *argv[]) {
     if (argc != 2) {
-        printf("USAGE:\n%s URL\n", argv[0]);
+        printf("USAGE:\n");
+        printf("%s URL\n", argv[0]);
         return 1;
     }
+    char *url;
 
-    char *url = argv[1];
-    mainMenu(url);
+    url = getUrl(argv);
+    printf("%s\n", url);
+    mainMenu(&url);
 
     return 0;
 }
