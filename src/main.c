@@ -21,7 +21,7 @@ void download(char **url, char **format) {
     free(*format);
 
     if (WEXITSTATUS(exit_code) != 0) {
-        printf("Couldn't download the file with specified format/quality\n");
+        printf("\e[1m\e[31mCouldn't download the file with specified format/quality\e[0m\n");
         exit(1);
     }
 }
@@ -32,14 +32,14 @@ void downloadVideoAudio(char **url) {
     unsigned long len = sizeof(quality)/sizeof(char*);
     
     for (unsigned long i = 0; i < len; i++) {
-        printf("%lu. %sp\n", i+1, quality[i]);
+        printf("%lu. \e[1m\e[34m%sp\e[0m\n", i+1, quality[i]);
     }
 
     unsigned long userChoice;
-    printf("Choose the resolution for the video: ");
+    printf("\e[1m\e[36mChoose the resolution for the video: \e[0m");
     int res = scanf("%lu", &userChoice);
     if (res != 1) {
-        printf("Please enter a valid number!\n");
+        printf("\e[1m\e[31mPlease enter a valid number!\e[0m\n");
     }
 
     system("clear");
@@ -50,7 +50,7 @@ void downloadVideoAudio(char **url) {
         resolution = (char *) quality[userChoice-1];
     } else {
         free(*url);
-        printf("Please select one of available resolution!\n");
+        printf("\e[1m\e[31mPlease select one of available resolution!\e[0m\n");
         exit(1);
     }
 
@@ -71,10 +71,10 @@ void downloadVideo(char **url) {
     }
 
     unsigned long userChoice;
-    printf("Choose the resolution for the video: ");
+    printf("\e[1m\e[36mChoose the resolution for the video: \e[0m");
     int res = scanf("%lu", &userChoice);
     if (res != 1) {
-        printf("Please enter a valid number!\n");
+        printf("\e[1m\e[31mPlease enter a valid number!\e[0m\n");
     }
 
     system("clear");
@@ -85,7 +85,7 @@ void downloadVideo(char **url) {
         resolution = (char *) quality[userChoice-1];
     } else {
         free(*url);
-        printf("Please select one of available resolution!\n");
+        printf("\e[1m\e[31mPlease select one of available resolution!\e[0m\n");
         exit(1);
     }
 
@@ -107,9 +107,9 @@ void downloadAudio(char **url) {
 void mainMenu(char **url) {
     system("clear");
     const char *options[] = {
-        "video+audio",
-        "video only",
-        "audio only"
+        "\e[1m\e[34mvideo+audio\e[0m",
+        "\e[1m\e[34mvideo only\e[0m",
+        "\e[1m\e[34maudio only\e[0m",
     };
 
     int len = sizeof(options)/sizeof(char *);
@@ -120,10 +120,10 @@ void mainMenu(char **url) {
 
     int userChoice;
 
-    printf("Which one you want to download: ");
+    printf("\e[1m\e[36mWhich one you want to download: \e[0m");
     int result = scanf("%d", &userChoice);
     if  (result != 1) {
-        printf("Please enter a valid number!\n");
+        printf("\e[1m\e[31mPlease enter a valid number!\e[0m\n");
         return;
     }
 
@@ -139,7 +139,7 @@ void mainMenu(char **url) {
         downloadAudio(url);
         break;
     default:
-        printf("Please select one of the option!\n");
+        printf("\e[1m\e[31mPlease select one of the option!\e[0m\n");
         break;
     }
     printf("\n");
@@ -163,10 +163,9 @@ int main(int argc, char *argv[]) {
         printf("%s URL\n", argv[0]);
         return 1;
     }
-    char *url;
 
+    char *url;
     url = getUrl(argv);
-    printf("%s\n", url);
     mainMenu(&url);
 
     return 0;
