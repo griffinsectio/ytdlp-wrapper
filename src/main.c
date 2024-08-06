@@ -7,6 +7,7 @@ const char *ytdlp = "yt-dlp";
 const char *outputFormat = "-o \"%(title)s.%(ext)s\" --restrict-filenames";
 
 void download(char **url, char **format) {
+    system("clear");
     // 1 for null character
     // 3 for spaces between each command component
     int commandLen = strlen(ytdlp) + strlen(outputFormat) + strlen(*format) + strlen(*url) + 1 + 3;
@@ -26,6 +27,7 @@ void download(char **url, char **format) {
 }
 
 void downloadVideoAudio(char **url) {
+    system("clear");
     const char *quality[] = {"144", "240", "360", "480", "720", "1080", "1440", "2160", "4320"};
     unsigned long len = sizeof(quality)/sizeof(char*);
     
@@ -39,6 +41,8 @@ void downloadVideoAudio(char **url) {
     if (res != 1) {
         printf("Please enter a valid number!\n");
     }
+
+    system("clear");
 
     char *resolution;
 
@@ -58,6 +62,7 @@ void downloadVideoAudio(char **url) {
 }
 
 void downloadVideo(char **url) {
+    system("clear");
     const char *quality[] = {"144", "240", "360", "480", "720", "1080", "1440", "2160", "4320"};
     unsigned long len = sizeof(quality)/sizeof(char*);
     
@@ -71,6 +76,8 @@ void downloadVideo(char **url) {
     if (res != 1) {
         printf("Please enter a valid number!\n");
     }
+
+    system("clear");
 
     char *resolution;
 
@@ -90,6 +97,7 @@ void downloadVideo(char **url) {
 }
 
 void downloadAudio(char **url) {
+    system("clear");
     char *format = (char *) malloc(sizeof(char) * 8);
     sprintf(format, "-f \"ba\"");
 
@@ -97,6 +105,7 @@ void downloadAudio(char **url) {
 }
 
 void mainMenu(char **url) {
+    system("clear");
     const char *options[] = {
         "video+audio",
         "video only",
