@@ -11,11 +11,13 @@ fi
 
 if [ -f /usr/bin/apt ]
 then
+	apt update
 	apt install python3 ffmpeg
 fi
 
 if [ -f /usr/bin/dnf ]
 then
+	dnf upgrade --refresh
 	dnf install python3 ffmpeg
 fi
 
