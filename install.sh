@@ -4,7 +4,21 @@ then
 	exit
 fi
 
-pacman -Sy python3 ffmpeg
+if [ -f /usr/bin/pacman ]
+then
+	pacman -Sy python3 ffmpeg
+fi
+
+if [ -f /usr/bin/apt ]
+then
+	apt install python3 ffmpeg
+fi
+
+if [ -f /usr/bin/dnf ]
+then
+	dnf install python3 ffmpeg
+fi
+
 wget https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp
 mv ./yt-dlp /usr/bin/
 chmod +x /usr/bin/yt-dlp
