@@ -10,3 +10,8 @@ Currently suppported platforms:
 chmod +x ./install.sh
 sudo ./install.sh
 ```
+
+# Todos
+- [ ] Implement user-specified output format
+- [ ] Treat playlist differently
+- [ ] Let user specify where to save the downloaded file
