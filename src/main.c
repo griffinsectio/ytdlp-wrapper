@@ -3,30 +3,35 @@
 #include <string.h>
 #include <sys/wait.h>
 
-const char *ytdlp = "yt-dlp";
-const char *outputFormat = "-o \"%(title)s.%(ext)s\" --restrict-filenames";
+char const *ytdlp = "yt-dlp";
 
-void download(char **url, char **format) {
+void download(char **url, char **format, char const **outputFormat) {
     system("clear");
-    // 1 for null character
+    
+    // 3 for "-o" and space
+    char *output = (char *) malloc(strlen(*outputFormat) + 3 + 1);
+    sprintf(output, "-o %s", *outputFormat);
+
     // 3 for spaces between each command component
-    int commandLen = strlen(ytdlp) + strlen(outputFormat) + strlen(*format) + strlen(*url) + 1 + 3;
+    int commandLen = strlen(ytdlp) + strlen(output) + strlen(*format) + strlen(*url) + 3 + 1;
     char *command = (char *) malloc(commandLen);
-    sprintf(command, "%s %s %s %s", ytdlp, outputFormat, *format, *url);
+    sprintf(command, "%s %s %s %s", ytdlp, output, *format, *url);
     command[commandLen-1] = '\0';
 
     int exit_code = system(command);
 
     free(*url);
     free(*format);
+    free(output);
 
     if (WEXITSTATUS(exit_code) != 0) {
         printf("\e[1m\e[31mCouldn't download the file with specified format/quality\e[0m\n");
         exit(1);
     }
+    exit(0);
 }
 
-void downloadVideoAudio(char **url) {
+void downloadVideoAudio(char **url, char const **outputFormat) {
     system("clear");
     const char *quality[] = {"144", "240", "360", "480", "720", "1080", "1440", "2160", "4320"};
     unsigned long len = sizeof(quality)/sizeof(char*);
@@ -58,10 +63,10 @@ void downloadVideoAudio(char **url) {
     char *format = (char *) malloc(strlen(resolution) + strlen(formatString));
     sprintf(format, formatString, resolution);
     
-    download(url, &format);
+    download(url, &format, outputFormat);
 }
 
-void downloadVideo(char **url) {
+void downloadVideo(char **url, char const **outputFormat) {
     system("clear");
     const char *quality[] = {"144", "240", "360", "480", "720", "1080", "1440", "2160", "4320"};
     unsigned long len = sizeof(quality)/sizeof(char*);
@@ -93,56 +98,106 @@ void downloadVideo(char **url) {
     char *format = (char *) malloc(strlen(resolution) + strlen(formatString));
     sprintf(format, formatString, resolution);
 
-    download(url, &format);
+    download(url, &format, outputFormat);
 }
 
-void downloadAudio(char **url) {
+void downloadAudio(char **url, char const **outputFormat) {
     system("clear");
     char *format = (char *) malloc(sizeof(char) * 8);
     sprintf(format, "-f \"ba\"");
 
-    download(url, &format);
+    download(url, &format, outputFormat);
 }
 
-void mainMenu(char **url) {
+void setOutputFormat(char const **outputFormat) {
     system("clear");
-    const char *options[] = {
-        "\e[1m\e[34mvideo+audio\e[0m",
-        "\e[1m\e[34mvideo only\e[0m",
-        "\e[1m\e[34maudio only\e[0m",
+    const char *outputFormats[] = {
+        "\"%(title)s.%(ext)s\"",
+        "\"%(uploader)s - %(title)s.%(ext)s\"",
+        "\"[%(id)s] %(uploader)s - %(title)s.%(ext)s\"",
+        "\"%(uploader)s (%(duration_string)s) - %(title)s.%(ext)s\"",
+        "\"[%(id)s] %(uploader)s (%(duration_string)s) - %(title)s.%(ext)s\"",
     };
 
-    int len = sizeof(options)/sizeof(char *);
+    const char *outputFormatsExamples[] = {
+        "example.mp4",
+        "John Doe - example.mp4",
+        "[13231] - example.mp4",
+        "John Doe (01:30:00) - example.mp4",
+        "[13231] John Doe (01:30:00) - example.mp4",
+    };
 
-    for (int i = 0; i < len; i++) {
-        printf("%d. %s\n", i+1, options[i]);
+    int lenOutputFormats = sizeof(outputFormats)/sizeof(const char *);
+
+    printf("\e[1m\e[33mCurrent format: %s\e[0m\n\n", *outputFormat);
+    for (int i = 0; i < lenOutputFormats; i++) {
+        printf("%d. \e[1m\e[34m%s\e[0m\n", i+1, outputFormats[i]);
+        printf("example: %s\n", outputFormatsExamples[i]);
     }
 
     int userChoice;
-
-    printf("\e[1m\e[36mWhich one you want to download: \e[0m");
+    printf("\e[1m\e[36mSelect format: \e[0m");
     int result = scanf("%d", &userChoice);
-    if  (result != 1) {
+
+    if (result != 1) {
         printf("\e[1m\e[31mPlease enter a valid number!\e[0m\n");
         return;
     }
 
-    switch (userChoice)
-    {
-    case 1:
-        downloadVideoAudio(url);
-        break;
-    case 2:
-        downloadVideo(url);
-        break;
-    case 3: 
-        downloadAudio(url);
-        break;
-    default:
-        printf("\e[1m\e[31mPlease select one of the option!\e[0m\n");
-        break;
+    if (userChoice > 0 && userChoice <= lenOutputFormats) {
+        *outputFormat = outputFormats[userChoice - 1];
+    } else {
+        printf("Please select the available format!\n");
     }
-    printf("\n");
+}
+
+void mainMenu(char **url) {
+    char const *outputFormat = "\"%(title)s.%(ext)s\"";
+    while (1) {
+        system("clear");
+
+        const char *options[] = {
+            "video+audio",
+            "video only",
+            "audio only",
+            "Select Filename Format",
+        };
+
+        int len = sizeof(options)/sizeof(char *);
+
+        for (int i = 0; i < len; i++) {
+            printf("%d. \e[1m\e[34m%s\e[0m\n", i+1, options[i]);
+        }
+
+        int userChoice;
+
+        printf("\e[1m\e[36mWhich one you want to download: \e[0m");
+        int result = scanf("%d", &userChoice);
+        if  (result != 1) {
+            printf("\e[1m\e[31mPlease enter a valid number!\e[0m\n");
+            return;
+        }
+
+        switch (userChoice)
+        {
+        case 1:
+            downloadVideoAudio(url, &outputFormat);
+            break;
+        case 2:
+            downloadVideo(url, &outputFormat);
+            break;
+        case 3: 
+            downloadAudio(url, &outputFormat);
+            break;
+        case 4:
+            setOutputFormat(&outputFormat);
+            break;
+        default:
+            printf("\e[1m\e[31mPlease select one of the option!\e[0m\n");
+            break;
+        }
+        printf("\n");
+    }
 }
 
 char *getUrl(char *argv[]) {
