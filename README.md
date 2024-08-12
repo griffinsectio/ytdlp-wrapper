@@ -12,6 +12,6 @@ sudo ./install.sh
 ```
 
 # Todos
-- [ ] Implement user-specified output format
+- [x] Implement user-specified output format
 - [ ] Treat playlist differently
 - [ ] Let user specify where to save the downloaded file
