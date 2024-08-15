@@ -5,7 +5,7 @@
 #include <dirent.h>
 
 char const *ytdlp = "yt-dlp";
-char *outputPath;
+char const *outputPath;
 
 void download(char **url, char **format, char const **outputFormat) {
     system("clear");
@@ -15,14 +15,14 @@ void download(char **url, char **format, char const **outputFormat) {
     sprintf(output, "-o %s", *outputFormat);
 
     // 3 for "-P" and space
-    char *tempOutputPath = malloc(strlen(outputPath) + 3);
+    char *tempOutputPath = (char *) malloc(strlen(outputPath) + 3);
     sprintf(tempOutputPath, "-P %s", outputPath);
     outputPath = tempOutputPath;
 
     // 4 for spaces between each command component
-    int commandLen = strlen(ytdlp) + strlen(output) + strlen(*format) + strlen(*url) + 4 + 1;
+    int commandLen = strlen(ytdlp) + strlen(output) + strlen(*format) + strlen(*url) + strlen(outputPath) + 4 + 1;
     char *command = (char *) malloc(commandLen);
-    sprintf(command, "%s %s %s %s %s", ytdlp, output, *format, *url);
+    sprintf(command, "%s %s %s %s %s", ytdlp, output, *format, *url, outputPath);
     command[commandLen-1] = '\0';
 
     int exit_code = system(command);
@@ -252,8 +252,13 @@ int main(int argc, char *argv[]) {
             }
         }
     }
+
+    // TODO: Treat playlsit differently
+    // Step 1: Find out if the link points to a playlist
+    // Step 2: Prompt the user, are they going to download the whole playlist, or just a portion of it
+    // Step 3: Are they 
     
-    char *url;
+    char *url = NULL;
     url = getUrl(argv);
     mainMenu(&url);
 
