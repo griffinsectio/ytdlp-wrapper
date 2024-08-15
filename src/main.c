@@ -2,8 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/wait.h>
+#include <dirent.h>
 
 char const *ytdlp = "yt-dlp";
+char *outputPath;
 
 void download(char **url, char **format, char const **outputFormat) {
     system("clear");
@@ -12,10 +14,15 @@ void download(char **url, char **format, char const **outputFormat) {
     char *output = (char *) malloc(strlen(*outputFormat) + 3 + 1);
     sprintf(output, "-o %s", *outputFormat);
 
-    // 3 for spaces between each command component
-    int commandLen = strlen(ytdlp) + strlen(output) + strlen(*format) + strlen(*url) + 3 + 1;
+    // 3 for "-P" and space
+    char *tempOutputPath = malloc(strlen(outputPath) + 3);
+    sprintf(tempOutputPath, "-P %s", outputPath);
+    outputPath = tempOutputPath;
+
+    // 4 for spaces between each command component
+    int commandLen = strlen(ytdlp) + strlen(output) + strlen(*format) + strlen(*url) + 4 + 1;
     char *command = (char *) malloc(commandLen);
-    sprintf(command, "%s %s %s %s", ytdlp, output, *format, *url);
+    sprintf(command, "%s %s %s %s %s", ytdlp, output, *format, *url);
     command[commandLen-1] = '\0';
 
     int exit_code = system(command);
@@ -23,6 +30,7 @@ void download(char **url, char **format, char const **outputFormat) {
     free(*url);
     free(*format);
     free(output);
+    free(tempOutputPath);
 
     if (WEXITSTATUS(exit_code) != 0) {
         printf("\e[1m\e[31mCouldn't download the file with specified format/quality\e[0m\n");
@@ -213,12 +221,38 @@ char *getUrl(char *argv[]) {
 }
 
 int main(int argc, char *argv[]) {
-    if (argc != 2) {
+    if (argc == 1) {
         printf("USAGE:\n");
-        printf("%s URL\n", argv[0]);
+        printf("%s [OPTIONS] URL\n", argv[0]);
+        printf("\n");
+        printf("OPTIONS:\n");
+        printf("-o DIR     Store downloaded file to DIR\n");
         return 1;
     }
-
+    else if (argc == 2)
+    {
+        outputPath = "./";
+    }
+    else if (argc > 3)
+    {
+        for (int i = 1; i < argc; i++)
+        {
+            if (i + 1 < argc && strcmp(argv[i], "-o") == 0)
+            {
+                DIR* dir = opendir(argv[i + 1]);
+                if (dir)
+                {
+                    outputPath = argv[i + 1];
+                }
+                else
+                {
+                    printf("\e[1m\e[31mCouldn't open directory!\e[0m\n");
+                    exit(1);
+                }
+            }
+        }
+    }
+    
     char *url;
     url = getUrl(argv);
     mainMenu(&url);
