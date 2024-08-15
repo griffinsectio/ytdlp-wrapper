@@ -220,24 +220,29 @@ char *getUrl(char *argv[]) {
     
 }
 
+void printUsage(char **argv[])
+{
+    printf("USAGE:\n");
+    printf("%s [OPTIONS] URL\n", *argv[0]);
+    printf("\n");
+    printf("OPTIONS:\n");
+    printf("-o DIR     Store downloaded file to DIR\n");
+}
+
 int main(int argc, char *argv[]) {
     if (argc == 1) {
-        printf("USAGE:\n");
-        printf("%s [OPTIONS] URL\n", argv[0]);
-        printf("\n");
-        printf("OPTIONS:\n");
-        printf("-o DIR     Store downloaded file to DIR\n");
-        return 1;
+        printUsage(&argv);
+        exit(1);
     }
     else if (argc == 2)
     {
         outputPath = "./";
     }
-    else if (argc > 3)
+    else if (argc > 2)
     {
         for (int i = 1; i < argc; i++)
         {
-            if (i + 1 < argc && strcmp(argv[i], "-o") == 0)
+            if (i + 1 < argc && (strcmp(argv[i], "-o") == 0 || strcmp(argv[i], "--output") == 0))
             {
                 DIR* dir = opendir(argv[i + 1]);
                 if (dir)
@@ -250,13 +255,18 @@ int main(int argc, char *argv[]) {
                     exit(1);
                 }
             }
+            else
+            {
+                printUsage(&argv);
+            }
         }
     }
 
     // TODO: Treat playlsit differently
     // Step 1: Find out if the link points to a playlist
     // Step 2: Prompt the user, are they going to download the whole playlist, or just a portion of it
-    // Step 3: Are they 
+    // Step 3: Ask if they want to create a folder for the playlist
+    // Step 4: Download each video
     
     char *url = NULL;
     url = getUrl(argv);
